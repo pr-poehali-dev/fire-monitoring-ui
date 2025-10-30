@@ -20,6 +20,7 @@ type Building = {
   lat: number;
   lng: number;
   maintenanceDue?: string;
+  alarmConfirmed?: boolean;
   systems: {
     sprinkler: 'active' | 'inactive' | 'error';
     alarm: 'active' | 'inactive' | 'error';
@@ -150,10 +151,22 @@ export default function Index() {
   const [activeTab, setActiveTab] = useState('registry');
   const [statusFilter, setStatusFilter] = useState<BuildingStatus | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [buildings, setBuildings] = useState<Building[]>(mockBuildings);
 
-  const criticalCount = mockBuildings.filter(b => b.status === 'critical').length;
-  const noSignalCount = mockBuildings.filter(b => b.status === 'no-signal').length;
-  const maintenanceCount = mockBuildings.filter(b => b.status === 'maintenance').length;
+  const criticalCount = buildings.filter(b => b.status === 'critical').length;
+  const noSignalCount = buildings.filter(b => b.status === 'no-signal').length;
+  const maintenanceCount = buildings.filter(b => b.status === 'maintenance').length;
+
+  const confirmAlarm = (buildingId: string) => {
+    setBuildings(prevBuildings =>
+      prevBuildings.map(b =>
+        b.id === buildingId ? { ...b, alarmConfirmed: true } : b
+      )
+    );
+    if (selectedBuilding?.id === buildingId) {
+      setSelectedBuilding({ ...selectedBuilding, alarmConfirmed: true });
+    }
+  };
 
   const getStatusColor = (status: BuildingStatus) => {
     switch (status) {
@@ -188,7 +201,7 @@ export default function Index() {
     }
   };
 
-  const filteredBuildings = mockBuildings
+  const filteredBuildings = buildings
     .filter(b => statusFilter === 'all' || b.status === statusFilter)
     .filter(b => 
       searchQuery === '' || 
@@ -213,7 +226,7 @@ export default function Index() {
             controls: ['zoomControl', 'typeSelector', 'fullscreenControl']
           });
 
-          mockBuildings.forEach(building => {
+          buildings.forEach(building => {
             const placemark = new window.ymaps.Placemark(
               [building.lat, building.lng],
               {
@@ -343,7 +356,7 @@ export default function Index() {
                   className={statusFilter === 'normal' ? 'bg-green-600 hover:bg-green-700' : 'border-green-500 text-green-600 hover:bg-green-50 dark:hover:bg-green-950/20'}
                 >
                   <Icon name="CheckCircle" size={16} className="mr-2" />
-                  Норма ({mockBuildings.filter(b => b.status === 'normal').length})
+                  Норма ({buildings.filter(b => b.status === 'normal').length})
                 </Button>
               </div>
             </div>
@@ -370,7 +383,7 @@ export default function Index() {
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <div className={`w-3 h-3 rounded-full flex-shrink-0 ${getStatusColor(building.status)} ${building.status === 'critical' ? 'animate-pulse' : ''}`} />
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <h3 className="text-base font-semibold truncate">{building.name}</h3>
                           <Badge 
                             variant={building.status === 'critical' ? 'destructive' : building.status === 'no-signal' ? 'default' : building.status === 'maintenance' ? 'secondary' : 'secondary'}
@@ -381,6 +394,12 @@ export default function Index() {
                               <span className="ml-1">• через {building.maintenanceDue}</span>
                             )}
                           </Badge>
+                          {building.status === 'critical' && building.alarmConfirmed && (
+                            <Badge variant="outline" className="text-xs bg-red-100 dark:bg-red-900/30 border-red-500 text-red-700 dark:text-red-400">
+                              <Icon name="CheckCircle2" size={12} className="mr-1" />
+                              Подтверждена
+                            </Badge>
+                          )}
                         </div>
                         <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
                           <Icon name="MapPin" size={12} />
@@ -388,15 +407,28 @@ export default function Index() {
                         </p>
                       </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedBuilding(building)}
-                      className="flex-shrink-0"
-                    >
-                      <Icon name="ChevronRight" size={16} />
-                      Подробнее
-                    </Button>
+                    <div className="flex gap-2 flex-shrink-0">
+                      {building.status === 'critical' && !building.alarmConfirmed && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => confirmAlarm(building.id)}
+                          className="animate-pulse"
+                        >
+                          <Icon name="Bell" size={16} className="mr-1" />
+                          Подтвердить
+                        </Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedBuilding(building)}
+                        className="flex-shrink-0"
+                      >
+                        <Icon name="ChevronRight" size={16} />
+                        Подробнее
+                      </Button>
+                    </div>
                   </div>
                 </Card>
               ))
@@ -473,18 +505,37 @@ export default function Index() {
                 </DialogHeader>
 
                 {selectedBuilding.status === 'critical' && (
-                  <div className="bg-red-100 dark:bg-red-950 border-2 border-red-500 p-4 rounded-lg mb-4">
+                  <div className={`border-2 p-4 rounded-lg mb-4 ${selectedBuilding.alarmConfirmed ? 'bg-red-50 dark:bg-red-950/50 border-red-400' : 'bg-red-100 dark:bg-red-950 border-red-500'}`}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <Icon name="Siren" size={24} className="text-red-600 animate-pulse" />
+                        <Icon name="Siren" size={24} className={`text-red-600 ${!selectedBuilding.alarmConfirmed ? 'animate-pulse' : ''}`} />
                         <div>
-                          <p className="font-bold text-red-700 dark:text-red-300">ТРЕВОГА!</p>
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="font-bold text-red-700 dark:text-red-300">ТРЕВОГА!</p>
+                            {selectedBuilding.alarmConfirmed && (
+                              <Badge variant="outline" className="bg-red-100 dark:bg-red-900/30 border-red-500 text-red-700 dark:text-red-400">
+                                <Icon name="CheckCircle2" size={12} className="mr-1" />
+                                Подтверждена
+                              </Badge>
+                            )}
+                          </div>
                           <p className="text-sm text-red-600 dark:text-red-400">
                             {mockAlerts.find(a => a.building === selectedBuilding.name)?.message}
                           </p>
                         </div>
                       </div>
                       <div className="flex gap-2">
+                        {!selectedBuilding.alarmConfirmed && (
+                          <Button 
+                            variant="destructive" 
+                            size="sm"
+                            onClick={() => confirmAlarm(selectedBuilding.id)}
+                            className="animate-pulse"
+                          >
+                            <Icon name="Bell" size={16} className="mr-2" />
+                            Подтвердить тревогу
+                          </Button>
+                        )}
                         <Button variant="destructive" size="sm">
                           <Icon name="Phone" size={16} className="mr-2" />
                           Связь с МЧС
