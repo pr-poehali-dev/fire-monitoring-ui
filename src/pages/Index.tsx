@@ -387,22 +387,6 @@ export default function Index() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-8 text-sm">
-                      <div className="text-center">
-                        <div className="text-muted-foreground">Датчики</div>
-                        <div className="text-xl font-bold">{building.activeSensors}/{building.sensors}</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-muted-foreground">Тревоги</div>
-                        <div className={`text-xl font-bold ${building.alerts > 0 ? 'text-destructive' : 'text-green-500'}`}>
-                          {building.alerts}
-                        </div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-muted-foreground">Проверка</div>
-                        <div className="text-sm">{building.lastCheck}</div>
-                      </div>
-                    </div>
                   </div>
                 </Card>
               ))
