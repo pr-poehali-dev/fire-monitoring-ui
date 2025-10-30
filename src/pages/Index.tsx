@@ -377,6 +377,9 @@ export default function Index() {
                             className={`text-xs ${building.status === 'critical' ? 'animate-pulse' : ''}`}
                           >
                             {getStatusText(building.status)}
+                            {building.status === 'maintenance' && building.maintenanceDue && (
+                              <span className="ml-1">• через {building.maintenanceDue}</span>
+                            )}
                           </Badge>
                         </div>
                         <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
