@@ -313,8 +313,6 @@ export default function Index() {
                   key={building.id}
                   className={`p-6 hover:bg-secondary/50 transition-all cursor-pointer border-2 ${
                     building.status === 'critical' ? 'bg-red-50 dark:bg-red-950/20 border-red-500' : 
-                    building.status === 'no-signal' ? 'bg-orange-50 dark:bg-orange-950/20 border-orange-500' : 
-                    building.status === 'maintenance' ? 'bg-yellow-50 dark:bg-yellow-950/20 border-yellow-500' : 
                     'border-border'
                   }`}
                   onClick={() => setSelectedBuilding(building)}
