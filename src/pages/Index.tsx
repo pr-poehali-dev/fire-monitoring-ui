@@ -149,6 +149,7 @@ export default function Index() {
   const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(null);
   const [activeTab, setActiveTab] = useState('registry');
   const [statusFilter, setStatusFilter] = useState<BuildingStatus | 'all'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const criticalCount = mockBuildings.filter(b => b.status === 'critical').length;
   const noSignalCount = mockBuildings.filter(b => b.status === 'no-signal').length;
@@ -187,9 +188,13 @@ export default function Index() {
     }
   };
 
-  const filteredBuildings = statusFilter === 'all' 
-    ? mockBuildings 
-    : mockBuildings.filter(b => b.status === statusFilter);
+  const filteredBuildings = mockBuildings
+    .filter(b => statusFilter === 'all' || b.status === statusFilter)
+    .filter(b => 
+      searchQuery === '' || 
+      b.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      b.address.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
   const sortedBuildings = [...filteredBuildings].sort((a, b) => {
     return getPriorityOrder(a.status) - getPriorityOrder(b.status);
@@ -280,6 +285,17 @@ export default function Index() {
           </TabsList>
 
           <TabsContent value="registry" className="space-y-4">
+            <div className="relative mb-4">
+              <Icon name="Search" size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Поиск по названию или адресу..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-border rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+
             <div className="flex items-center gap-4 mb-6">
               <div className="flex items-center gap-2">
                 <Icon name="Filter" size={20} className="text-muted-foreground" />
@@ -365,7 +381,14 @@ export default function Index() {
             </div>
 
             <div className="grid gap-4">
-              {sortedBuildings.map((building) => (
+              {sortedBuildings.length === 0 ? (
+                <Card className="p-8 text-center">
+                  <Icon name="SearchX" size={48} className="mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-lg font-medium text-muted-foreground mb-2">Ничего не найдено</p>
+                  <p className="text-sm text-muted-foreground">Попробуйте изменить фильтры или запрос поиска</p>
+                </Card>
+              ) : (
+                sortedBuildings.map((building) => (
                 <Card
                   key={building.id}
                   className={`p-6 hover:bg-secondary/50 transition-all cursor-pointer border-2 ${
@@ -414,7 +437,8 @@ export default function Index() {
                     </div>
                   </div>
                 </Card>
-              ))}
+              ))
+              )}
             </div>
           </TabsContent>
 
