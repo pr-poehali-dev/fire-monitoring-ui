@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FireWatch - Критическая тревога</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: hsl(210, 20%, 98%);
+            color: hsl(222.2, 47.4%, 11.2%);
+        }
+        
+        .critical-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 2000;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .alert-modal {
+            background: white;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 100%;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.4s;
+        }
+        
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .alert-header {
+            background: linear-gradient(135deg, hsl(0, 84%, 60%) 0%, hsl(0, 84%, 50%) 100%);
+            color: white;
+            padding: 32px 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .alert-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.2) 0%, transparent 50%);
+        }
+        
+        .alert-icon-large {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            margin: 0 auto 16px;
+            animation: pulse-critical 2s infinite;
+        }
+        
+        @keyframes pulse-critical {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+            }
+            50% { 
+                transform: scale(1.1);
+                box-shadow: 0 0 0 20px rgba(255, 255, 255, 0);
+            }
+        }
+        
+        .alert-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        
+        .alert-subtitle {
+            font-size: 16px;
+            opacity: 0.95;
+            position: relative;
+        }
+        
+        .alert-body {
+            padding: 24px;
+        }
+        
+        .info-section {
+            background: hsl(0, 84%, 97%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid hsl(0, 84%, 92%);
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .info-row:first-child {
+            padding-top: 0;
+        }
+        
+        .info-label {
+            font-size: 14px;
+            color: hsl(215.4, 16.3%, 46.9%);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-value {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .warning-box {
+            background: hsl(38, 92%, 97%);
+            border-left: 4px solid hsl(38, 92%, 50%);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .warning-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .warning-text {
+            font-size: 14px;
+            color: hsl(215.4, 16.3%, 46.9%);
+            line-height: 1.5;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 14px 24px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-danger {
+            background: hsl(0, 84%, 60%);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: hsl(0, 84%, 50%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px hsla(0, 84%, 60%, 0.4);
+        }
+        
+        .btn-secondary {
+            background: hsl(210, 40%, 96.1%);
+            color: hsl(222.2, 47.4%, 11.2%);
+        }
+        
+        .btn-secondary:hover {
+            background: hsl(210, 40%, 92%);
+        }
+        
+        .timer {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .back-link {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            background: hsl(199, 89%, 48%);
+            padding: 8px 16px;
+            border-radius: 8px;
+            z-index: 2001;
+        }
+        
+        .back-link:hover {
+            background: hsl(199, 89%, 38%);
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">← Назад к списку макетов</a>
+    
+    <div class="critical-overlay">
+        <div class="alert-modal">
+            <div class="alert-header">
+                <div class="timer" id="timer">00:00</div>
+                <div class="alert-icon-large">🚨</div>
+                <h1 class="alert-title">КРИТИЧЕСКАЯ ТРЕВОГА</h1>
+                <p class="alert-subtitle">Требуется немедленное подтверждение</p>
+            </div>
+            
+            <div class="alert-body">
+                <div class="info-section">
+                    <div class="info-row">
+                        <span class="info-label">🏢 Объект</span>
+                        <span class="info-value">ТЦ Горизонт</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">📍 Адрес</span>
+                        <span class="info-value">Московское шоссе 18</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">⚠️ Событие</span>
+                        <span class="info-value" style="color: hsl(0, 84%, 60%);">Задымление в зоне 2</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">📡 Датчик</span>
+                        <span class="info-value">SD-241 (Фудкорт)</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">🕐 Время</span>
+                        <span class="info-value" id="alert-time">30.10.2024 14:32</span>
+                    </div>
+                </div>
+                
+                <div class="warning-box">
+                    <div class="warning-title">
+                        ⚡ Автоматические действия активированы
+                    </div>
+                    <div class="warning-text">
+                        • Звуковая и световая сигнализация включена<br>
+                        • Система дымоудаления активирована<br>
+                        • Эвакуационные выходы разблокированы
+                    </div>
+                </div>
+                
+                <div class="actions">
+                    <button class="btn btn-danger" onclick="confirmCritical()">
+                        ✓ Подтвердить тревогу
+                    </button>
+                    <button class="btn btn-secondary" onclick="viewDetails()">
+                        👁️ Подробнее
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let seconds = 0;
+        
+        function updateTimer() {
+            seconds++;
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            document.getElementById('timer').textContent = 
+                `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+        
+        setInterval(updateTimer, 1000);
+        
+        function confirmCritical() {
+            alert('✓ Тревога подтверждена!\n\nДействие зафиксировано в журнале операторов.\nВремя подтверждения: ' + seconds + ' секунд');
+            document.querySelector('.critical-overlay').style.animation = 'fadeOut 0.3s';
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 300);
+        }
+        
+        function viewDetails() {
+            window.location.href = 'building-details.html';
+        }
+        
+        console.log('FireWatch Critical Alert - интерактивный макет загружен');
+        console.log('Таймер отсчитывает время с момента появления тревоги');
+    </script>
+    
+    <style>
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FireWatch - Интерактивные макеты</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: hsl(210, 20%, 98%);
+            color: hsl(222.2, 47.4%, 11.2%);
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: hsl(199, 89%, 48%);
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: hsl(215.4, 16.3%, 46.9%);
+            margin-bottom: 40px;
+        }
+        
+        .mockups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+        }
+        
+        .mockup-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .mockup-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .mockup-preview {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(135deg, hsl(199, 89%, 48%) 0%, hsl(199, 89%, 38%) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mockup-preview::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 50%, rgba(255,255,255,0.1) 0%, transparent 50%);
+        }
+        
+        .mockup-info {
+            padding: 20px;
+        }
+        
+        .mockup-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .mockup-description {
+            font-size: 14px;
+            color: hsl(215.4, 16.3%, 46.9%);
+            line-height: 1.5;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-top: 12px;
+        }
+        
+        .badge-interactive {
+            background: hsl(142, 76%, 36%);
+            color: white;
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: hsl(199, 89%, 48%);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 FireWatch - Интерактивные макеты</h1>
+        <p class="subtitle">Кликабельные прототипы интерфейса для демонстрации и тестирования</p>
+        
+        <div class="mockups-grid">
+            <a href="dashboard.html" class="mockup-card">
+                <div class="mockup-preview">📊</div>
+                <div class="mockup-info">
+                    <h3 class="mockup-title">Главный дашборд</h3>
+                    <p class="mockup-description">Основной экран с общей статистикой, списком объектов и быстрым доступом к критическим тревогам</p>
+                    <span class="badge badge-interactive">Интерактивный</span>
+                </div>
+            </a>
+            
+            <a href="map-view.html" class="mockup-card">
+                <div class="mockup-preview">🗺️</div>
+                <div class="mockup-info">
+                    <h3 class="mockup-title">Карта объектов</h3>
+                    <p class="mockup-description">Геолокация всех отслеживаемых объектов с цветовой индикацией статуса</p>
+                    <span class="badge badge-interactive">Интерактивный</span>
+                </div>
+            </a>
+            
+            <a href="alerts.html" class="mockup-card">
+                <div class="mockup-preview">🚨</div>
+                <div class="mockup-info">
+                    <h3 class="mockup-title">Оповещения</h3>
+                    <p class="mockup-description">Центр управления тревогами с возможностью подтверждения и фильтрации</p>
+                    <span class="badge badge-interactive">Интерактивный</span>
+                </div>
+            </a>
+            
+            <a href="journal.html" class="mockup-card">
+                <div class="mockup-preview">📝</div>
+                <div class="mockup-info">
+                    <h3 class="mockup-title">Журнал действий</h3>
+                    <p class="mockup-description">История всех операций операторов с отметками времени и деталями</p>
+                    <span class="badge badge-interactive">Интерактивный</span>
+                </div>
+            </a>
+            
+            <a href="building-details.html" class="mockup-card">
+                <div class="mockup-preview">🏢</div>
+                <div class="mockup-info">
+                    <h3 class="mockup-title">Детали объекта</h3>
+                    <p class="mockup-description">Подробная информация об объекте: датчики, системы, история, настройки</p>
+                    <span class="badge badge-interactive">Интерактивный</span>
+                </div>
+            </a>
+            
+            <a href="critical-alert.html" class="mockup-card">
+                <div class="mockup-preview">⚠️</div>
+                <div class="mockup-info">
+                    <h3 class="mockup-title">Критическая тревога</h3>
+                    <p class="mockup-description">Модальное окно при возникновении критической ситуации с быстрыми действиями</p>
+                    <span class="badge badge-interactive">Интерактивный</span>
+                </div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

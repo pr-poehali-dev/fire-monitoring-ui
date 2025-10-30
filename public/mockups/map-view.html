@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FireWatch - Карта объектов</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: hsl(210, 20%, 98%);
+            color: hsl(222.2, 47.4%, 11.2%);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: white;
+            border-bottom: 1px solid hsl(214.3, 31.8%, 91.4%);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 100;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: hsl(199, 89%, 48%);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-link {
+            color: hsl(199, 89%, 48%);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .map-container {
+            position: relative;
+            height: calc(100vh - 64px);
+            background: linear-gradient(to bottom, hsl(199, 89%, 95%), hsl(199, 89%, 85%));
+            overflow: hidden;
+        }
+        
+        .map-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 10;
+            max-width: 300px;
+        }
+        
+        .overlay-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+        
+        .legend-marker {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .marker-critical {
+            background: hsl(0, 84%, 60%);
+            box-shadow: 0 0 20px hsl(0, 84%, 60%);
+            animation: pulse-marker 2s infinite;
+        }
+        
+        .marker-warning {
+            background: hsl(38, 92%, 50%);
+            box-shadow: 0 0 10px hsl(38, 92%, 50%);
+        }
+        
+        .marker-normal {
+            background: hsl(142, 76%, 36%);
+        }
+        
+        .marker-no-signal {
+            background: hsl(215.4, 16.3%, 46.9%);
+        }
+        
+        @keyframes pulse-marker {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 20px hsl(0, 84%, 60%);
+            }
+            50% { 
+                transform: scale(1.2);
+                box-shadow: 0 0 40px hsl(0, 84%, 60%);
+            }
+        }
+        
+        .map-mockup {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        
+        .building-marker {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 4px solid white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .building-marker:hover {
+            transform: scale(1.2);
+            z-index: 10;
+        }
+        
+        .building-marker.critical {
+            background: hsl(0, 84%, 60%);
+            animation: pulse-marker 2s infinite;
+        }
+        
+        .building-marker.warning {
+            background: hsl(38, 92%, 50%);
+        }
+        
+        .building-marker.normal {
+            background: hsl(142, 76%, 36%);
+        }
+        
+        .building-marker.no-signal {
+            background: hsl(215.4, 16.3%, 46.9%);
+        }
+        
+        .building-tooltip {
+            position: absolute;
+            background: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: nowrap;
+            z-index: 20;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .building-marker:hover .building-tooltip {
+            opacity: 1;
+        }
+        
+        .tooltip-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .tooltip-address {
+            font-size: 12px;
+            color: hsl(215.4, 16.3%, 46.9%);
+        }
+        
+        .stats-panel {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 10;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: hsl(215.4, 16.3%, 46.9%);
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            🔥 FireWatch
+        </div>
+        <a href="index.html" class="back-link">← Назад к списку макетов</a>
+    </div>
+    
+    <div class="map-container">
+        <div class="map-overlay">
+            <div class="overlay-title">Легенда карты</div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-marker marker-critical"></div>
+                    <span>Критическая тревога</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-marker marker-warning"></div>
+                    <span>Предупреждение</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-marker marker-normal"></div>
+                    <span>Нормальное состояние</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-marker marker-no-signal"></div>
+                    <span>Нет сигнала</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-panel">
+            <div class="stats-grid">
+                <div class="stat">
+                    <div class="stat-value" style="color: hsl(0, 84%, 60%);">2</div>
+                    <div class="stat-label">Критические</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" style="color: hsl(38, 92%, 50%);">1</div>
+                    <div class="stat-label">Предупреждения</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" style="color: hsl(142, 76%, 36%);">8</div>
+                    <div class="stat-label">В норме</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">11</div>
+                    <div class="stat-label">Всего объектов</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="map-mockup">
+            <div class="building-marker critical" style="top: 30%; left: 45%;" onclick="selectBuilding('ТЦ Горизонт')">
+                🏢
+                <div class="building-tooltip">
+                    <div class="tooltip-name">ТЦ Горизонт</div>
+                    <div class="tooltip-address">Московское шоссе 18</div>
+                </div>
+            </div>
+            
+            <div class="building-marker critical" style="top: 50%; left: 60%;" onclick="selectBuilding('Офис Вектор')">
+                🏢
+                <div class="building-tooltip">
+                    <div class="tooltip-name">Офис Вектор</div>
+                    <div class="tooltip-address">ул. Ново-Садовая 106</div>
+                </div>
+            </div>
+            
+            <div class="building-marker no-signal" style="top: 35%; left: 70%;" onclick="selectBuilding('Склад Техно')">
+                🏭
+                <div class="building-tooltip">
+                    <div class="tooltip-name">Склад Техно</div>
+                    <div class="tooltip-address">пр. Кирова 156</div>
+                </div>
+            </div>
+            
+            <div class="building-marker normal" style="top: 60%; left: 40%;" onclick="selectBuilding('БЦ Галактика')">
+                🏢
+                <div class="building-tooltip">
+                    <div class="tooltip-name">БЦ Галактика</div>
+                    <div class="tooltip-address">ул. Ленинская 145</div>
+                </div>
+            </div>
+            
+            <div class="building-marker normal" style="top: 45%; left: 30%;" onclick="selectBuilding('Отель Рубин')">
+                🏨
+                <div class="building-tooltip">
+                    <div class="tooltip-name">Отель Рубин</div>
+                    <div class="tooltip-address">ул. Чапаевская 201</div>
+                </div>
+            </div>
+            
+            <div class="building-marker normal" style="top: 25%; left: 55%;" onclick="selectBuilding('Ресторан Визит')">
+                🍽️
+                <div class="building-tooltip">
+                    <div class="tooltip-name">Ресторан Визит</div>
+                    <div class="tooltip-address">ул. Самарская 51</div>
+                </div>
+            </div>
+            
+            <div class="building-marker normal" style="top: 70%; left: 65%;" onclick="selectBuilding('Медцентр Здоровье')">
+                🏥
+                <div class="building-tooltip">
+                    <div class="tooltip-name">Медцентр Здоровье</div>
+                    <div class="tooltip-address">пр. Ленина 2А</div>
+                </div>
+            </div>
+            
+            <div class="building-marker normal" style="top: 55%; left: 25%;" onclick="selectBuilding('Спорткомплекс Олимп')">
+                ⚽
+                <div class="building-tooltip">
+                    <div class="tooltip-name">Спорткомплекс Олимп</div>
+                    <div class="tooltip-address">ул. Спортивная 12</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function selectBuilding(name) {
+            window.location.href = 'building-details.html';
+        }
+        
+        console.log('FireWatch Map View - интерактивный макет загружен');
+        console.log('Наведите на маркеры для просмотра информации');
+        console.log('Кликните на маркер для открытия деталей объекта');
+    </script>
+</body>
+</html>

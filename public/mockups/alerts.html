@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FireWatch - Центр оповещений</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: hsl(210, 20%, 98%);
+            color: hsl(222.2, 47.4%, 11.2%);
+        }
+        
+        .header {
+            background: white;
+            border-bottom: 1px solid hsl(214.3, 31.8%, 91.4%);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: hsl(199, 89%, 48%);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        .page-header {
+            margin-bottom: 24px;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .page-subtitle {
+            color: hsl(215.4, 16.3%, 46.9%);
+            font-size: 14px;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid hsl(214.3, 31.8%, 91.4%);
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn:hover {
+            background: hsl(210, 40%, 96.1%);
+        }
+        
+        .filter-btn.active {
+            background: hsl(199, 89%, 48%);
+            color: white;
+            border-color: hsl(199, 89%, 48%);
+        }
+        
+        .alerts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .alert-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            transition: all 0.2s;
+        }
+        
+        .alert-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .alert-card.critical {
+            border-left: 4px solid hsl(0, 84%, 60%);
+        }
+        
+        .alert-card.warning {
+            border-left: 4px solid hsl(38, 92%, 50%);
+        }
+        
+        .alert-card.info {
+            border-left: 4px solid hsl(199, 89%, 48%);
+        }
+        
+        .alert-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        .alert-icon.critical {
+            background: hsl(0, 84%, 95%);
+            animation: pulse-red 2s infinite;
+        }
+        
+        .alert-icon.warning {
+            background: hsl(38, 92%, 95%);
+        }
+        
+        .alert-icon.info {
+            background: hsl(199, 89%, 95%);
+        }
+        
+        @keyframes pulse-red {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 0 0 hsla(0, 84%, 60%, 0.4);
+            }
+            50% { 
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px hsla(0, 84%, 60%, 0);
+            }
+        }
+        
+        .alert-content {
+            flex: 1;
+        }
+        
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        
+        .alert-building {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .alert-time {
+            font-size: 12px;
+            color: hsl(215.4, 16.3%, 46.9%);
+        }
+        
+        .alert-message {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: hsl(215.4, 16.3%, 46.9%);
+        }
+        
+        .alert-details {
+            font-size: 13px;
+            color: hsl(215.4, 16.3%, 46.9%);
+        }
+        
+        .alert-actions {
+            display: flex;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid hsl(214.3, 31.8%, 91.4%);
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        
+        .btn:hover {
+            background: hsl(210, 40%, 96.1%);
+        }
+        
+        .btn-primary {
+            background: hsl(199, 89%, 48%);
+            color: white;
+            border-color: hsl(199, 89%, 48%);
+        }
+        
+        .btn-primary:hover {
+            background: hsl(199, 89%, 38%);
+        }
+        
+        .btn-danger {
+            background: hsl(0, 84%, 60%);
+            color: white;
+            border-color: hsl(0, 84%, 60%);
+        }
+        
+        .btn-danger:hover {
+            background: hsl(0, 84%, 50%);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge-critical {
+            background: hsl(0, 84%, 95%);
+            color: hsl(0, 84%, 40%);
+        }
+        
+        .badge-warning {
+            background: hsl(38, 92%, 95%);
+            color: hsl(38, 92%, 40%);
+        }
+        
+        .badge-confirmed {
+            background: hsl(142, 76%, 95%);
+            color: hsl(142, 76%, 36%);
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: hsl(199, 89%, 48%);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: hsl(215.4, 16.3%, 46.9%);
+        }
+        
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            🔥 FireWatch
+        </div>
+    </div>
+    
+    <div class="container">
+        <a href="index.html" class="back-link">← Назад к списку макетов</a>
+        
+        <div class="page-header">
+            <h1 class="page-title">🚨 Центр оповещений</h1>
+            <p class="page-subtitle">Активные тревоги и предупреждения по всем объектам</p>
+        </div>
+        
+        <div class="filters">
+            <button class="filter-btn active" onclick="filterAlerts('all')">Все оповещения</button>
+            <button class="filter-btn" onclick="filterAlerts('critical')">🔴 Критические</button>
+            <button class="filter-btn" onclick="filterAlerts('warning')">🟡 Предупреждения</button>
+            <button class="filter-btn" onclick="filterAlerts('info')">🔵 Информация</button>
+        </div>
+        
+        <div class="alerts-list" id="alerts-list">
+            <div class="alert-card critical" data-type="critical">
+                <div class="alert-icon critical">🚨</div>
+                <div class="alert-content">
+                    <div class="alert-header">
+                        <div>
+                            <div class="alert-building">ТЦ Горизонт</div>
+                            <div class="alert-time">30.10.2024 14:32</div>
+                        </div>
+                        <span class="badge badge-critical">КРИТИЧНО</span>
+                    </div>
+                    <p class="alert-message">Задымление в зоне 2 (Фудкорт)</p>
+                    <p class="alert-details">📍 Московское шоссе 18, Самара • Датчик SD-241</p>
+                </div>
+                <div class="alert-actions">
+                    <button class="btn-primary btn" onclick="confirmAlert(this, 'ТЦ Горизонт')">✓ Подтвердить</button>
+                    <button class="btn" onclick="viewDetails('ТЦ Горизонт')">👁️ Детали</button>
+                </div>
+            </div>
+            
+            <div class="alert-card critical" data-type="critical">
+                <div class="alert-icon critical">🚨</div>
+                <div class="alert-content">
+                    <div class="alert-header">
+                        <div>
+                            <div class="alert-building">Офис Вектор</div>
+                            <div class="alert-time">30.10.2024 14:34</div>
+                        </div>
+                        <span class="badge badge-critical">КРИТИЧНО</span>
+                    </div>
+                    <p class="alert-message">Сработка датчика дыма, этаж 4</p>
+                    <p class="alert-details">📍 ул. Ново-Садовая 106, Самара • Датчик SD-412</p>
+                </div>
+                <div class="alert-actions">
+                    <button class="btn-primary btn" onclick="confirmAlert(this, 'Офис Вектор')">✓ Подтвердить</button>
+                    <button class="btn" onclick="viewDetails('Офис Вектор')">👁️ Детали</button>
+                </div>
+            </div>
+            
+            <div class="alert-card warning" data-type="warning">
+                <div class="alert-icon warning">⚠️</div>
+                <div class="alert-content">
+                    <div class="alert-header">
+                        <div>
+                            <div class="alert-building">Склад Техно</div>
+                            <div class="alert-time">30.10.2024 14:20</div>
+                        </div>
+                        <span class="badge badge-warning">ПРЕДУПРЕЖДЕНИЕ</span>
+                    </div>
+                    <p class="alert-message">Отсутствие сигнала от датчиков</p>
+                    <p class="alert-details">📍 пр. Кирова 156, Самара • Потеряна связь 15 мин назад</p>
+                </div>
+                <div class="alert-actions">
+                    <button class="btn-primary btn" onclick="confirmAlert(this, 'Склад Техно')">✓ Проверено</button>
+                    <button class="btn" onclick="viewDetails('Склад Техно')">👁️ Детали</button>
+                </div>
+            </div>
+            
+            <div class="alert-card info" data-type="info">
+                <div class="alert-icon info">ℹ️</div>
+                <div class="alert-content">
+                    <div class="alert-header">
+                        <div>
+                            <div class="alert-building">БЦ Галактика</div>
+                            <div class="alert-time">30.10.2024 13:45</div>
+                        </div>
+                        <span class="badge badge-confirmed">ПОДТВЕРЖДЕНО</span>
+                    </div>
+                    <p class="alert-message">Плановая проверка датчиков завершена</p>
+                    <p class="alert-details">📍 ул. Ленинская 145, Самара • Все системы в норме</p>
+                </div>
+                <div class="alert-actions">
+                    <button class="btn" onclick="viewDetails('БЦ Галактика')">👁️ Детали</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="empty-state" id="empty-state" style="display: none;">
+            <div class="empty-state-icon">✅</div>
+            <h3>Нет оповещений</h3>
+            <p>В данной категории нет активных оповещений</p>
+        </div>
+    </div>
+    
+    <script>
+        function filterAlerts(type) {
+            const buttons = document.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const alerts = document.querySelectorAll('.alert-card');
+            const emptyState = document.getElementById('empty-state');
+            let visibleCount = 0;
+            
+            alerts.forEach(alert => {
+                if (type === 'all' || alert.dataset.type === type) {
+                    alert.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    alert.style.display = 'none';
+                }
+            });
+            
+            if (visibleCount === 0) {
+                emptyState.style.display = 'block';
+            } else {
+                emptyState.style.display = 'none';
+            }
+        }
+        
+        function confirmAlert(button, building) {
+            const card = button.closest('.alert-card');
+            const badge = card.querySelector('.badge');
+            badge.className = 'badge badge-confirmed';
+            badge.textContent = 'ПОДТВЕРЖДЕНО';
+            
+            card.classList.remove('critical', 'warning');
+            card.classList.add('info');
+            card.dataset.type = 'info';
+            
+            const icon = card.querySelector('.alert-icon');
+            icon.className = 'alert-icon info';
+            icon.textContent = '✓';
+            
+            button.textContent = '✓ Подтверждено';
+            button.disabled = true;
+            button.style.opacity = '0.6';
+            
+            alert(`Тревога подтверждена для объекта: ${building}`);
+        }
+        
+        function viewDetails(building) {
+            window.location.href = 'building-details.html';
+        }
+        
+        console.log('FireWatch Alerts Center - интерактивный макет загружен');
+    </script>
+</body>
+</html>
