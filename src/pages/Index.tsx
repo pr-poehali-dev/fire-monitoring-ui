@@ -8,6 +8,21 @@ import Icon from '@/components/ui/icon';
 
 type BuildingStatus = 'normal' | 'warning' | 'critical' | 'no-signal' | 'maintenance';
 
+type OperatorAction = {
+  id: string;
+  timestamp: string;
+  action: string;
+  building: string;
+  operator: string;
+};
+
+type BuildingHistory = {
+  id: string;
+  date: string;
+  event: string;
+  details: string;
+};
+
 type Building = {
   id: string;
   name: string;
@@ -21,6 +36,9 @@ type Building = {
   lng: number;
   maintenanceDue?: string;
   alarmConfirmed?: boolean;
+  fireSystem: string;
+  lastMaintenance: string;
+  history: BuildingHistory[];
   systems: {
     sprinkler: 'active' | 'inactive' | 'error';
     alarm: 'active' | 'inactive' | 'error';
@@ -41,6 +59,13 @@ const mockBuildings: Building[] = [
     alerts: 1,
     lat: 53.2415,
     lng: 50.2212,
+    fireSystem: 'Автоматическая система пожаротушения + Дымоудаление',
+    lastMaintenance: '15.09.2024',
+    history: [
+      { id: '1', date: '30.10.2024 14:32', event: 'Тревога', details: 'Задымление в зоне 2 (Фудкорт)' },
+      { id: '2', date: '15.09.2024', event: 'ТО', details: 'Проведено плановое техническое обслуживание' },
+      { id: '3', date: '10.08.2024', event: 'Тревога', details: 'Ложное срабатывание датчика дыма' },
+    ],
     systems: { sprinkler: 'active', alarm: 'active', smoke: 'error', temperature: 35 },
   },
   {
@@ -54,6 +79,12 @@ const mockBuildings: Building[] = [
     alerts: 1,
     lat: 53.2001,
     lng: 50.1500,
+    fireSystem: 'Спринклерная система пожаротушения',
+    lastMaintenance: '20.08.2024',
+    history: [
+      { id: '1', date: '30.10.2024 14:34', event: 'Тревога', details: 'Сработка датчика дыма, этаж 4' },
+      { id: '2', date: '20.08.2024', event: 'ТО', details: 'Проведено плановое техническое обслуживание' },
+    ],
     systems: { sprinkler: 'error', alarm: 'active', smoke: 'active', temperature: 32 },
   },
   {
@@ -67,6 +98,12 @@ const mockBuildings: Building[] = [
     alerts: 1,
     lat: 53.2280,
     lng: 50.1960,
+    fireSystem: 'Газовая система пожаротушения',
+    lastMaintenance: '05.10.2024',
+    history: [
+      { id: '1', date: '30.10.2024 14:15', event: 'Потеря связи', details: 'Потеря связи с датчиками' },
+      { id: '2', date: '05.10.2024', event: 'ТО', details: 'Проведено плановое техническое обслуживание' },
+    ],
     systems: { sprinkler: 'active', alarm: 'inactive', smoke: 'active', temperature: 20 },
   },
   {
@@ -81,6 +118,12 @@ const mockBuildings: Building[] = [
     maintenanceDue: '3 дня',
     lat: 53.1959,
     lng: 50.1008,
+    fireSystem: 'Автоматическая система пожаротушения',
+    lastMaintenance: '25.07.2024',
+    history: [
+      { id: '1', date: '25.07.2024', event: 'ТО', details: 'Проведено плановое техническое обслуживание' },
+      { id: '2', date: '15.05.2024', event: 'ТО', details: 'Проведено плановое техническое обслуживание' },
+    ],
     systems: { sprinkler: 'active', alarm: 'active', smoke: 'active', temperature: 22 },
   },
   {
@@ -95,6 +138,11 @@ const mockBuildings: Building[] = [
     maintenanceDue: '5 дней',
     lat: 53.2107,
     lng: 50.2736,
+    fireSystem: 'Автоматическая система пожаротушения + Дымоудаление',
+    lastMaintenance: '22.07.2024',
+    history: [
+      { id: '1', date: '22.07.2024', event: 'ТО', details: 'Проведено плановое техническое обслуживание' },
+    ],
     systems: { sprinkler: 'active', alarm: 'active', smoke: 'active', temperature: 24 },
   },
   {
@@ -109,6 +157,11 @@ const mockBuildings: Building[] = [
     maintenanceDue: '7 дней',
     lat: 53.2429,
     lng: 50.2214,
+    fireSystem: 'Спринклерная система пожаротушения',
+    lastMaintenance: '18.07.2024',
+    history: [
+      { id: '1', date: '18.07.2024', event: 'ТО', details: 'Проведено плановое техническое обслуживание' },
+    ],
     systems: { sprinkler: 'active', alarm: 'active', smoke: 'active', temperature: 21 },
   },
   {
@@ -122,6 +175,11 @@ const mockBuildings: Building[] = [
     alerts: 0,
     lat: 53.2307,
     lng: 50.3533,
+    fireSystem: 'Порошковая система пожаротушения',
+    lastMaintenance: '01.10.2024',
+    history: [
+      { id: '1', date: '01.10.2024', event: 'ТО', details: 'Проведено плановое техническое обслуживание' },
+    ],
     systems: { sprinkler: 'active', alarm: 'active', smoke: 'active', temperature: 23 },
   },
   {
@@ -135,6 +193,11 @@ const mockBuildings: Building[] = [
     alerts: 0,
     lat: 53.2050,
     lng: 50.1450,
+    fireSystem: 'Автоматическая система пожаротушения',
+    lastMaintenance: '12.10.2024',
+    history: [
+      { id: '1', date: '12.10.2024', event: 'ТО', details: 'Проведено плановое техническое обслуживание' },
+    ],
     systems: { sprinkler: 'active', alarm: 'active', smoke: 'active', temperature: 22 },
   },
 ];
@@ -152,17 +215,39 @@ export default function Index() {
   const [statusFilter, setStatusFilter] = useState<BuildingStatus | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [buildings, setBuildings] = useState<Building[]>(mockBuildings);
+  const [operatorActions, setOperatorActions] = useState<OperatorAction[]>([]);
 
   const criticalCount = buildings.filter(b => b.status === 'critical').length;
   const noSignalCount = buildings.filter(b => b.status === 'no-signal').length;
   const maintenanceCount = buildings.filter(b => b.status === 'maintenance').length;
 
   const confirmAlarm = (buildingId: string) => {
+    const building = buildings.find(b => b.id === buildingId);
+    if (!building) return;
+
     setBuildings(prevBuildings =>
       prevBuildings.map(b =>
         b.id === buildingId ? { ...b, alarmConfirmed: true } : b
       )
     );
+    
+    const now = new Date();
+    const timeString = now.toLocaleString('ru-RU', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric', 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+    
+    setOperatorActions(prev => [{
+      id: Date.now().toString(),
+      timestamp: timeString,
+      action: 'Подтверждение тревоги',
+      building: building.name,
+      operator: 'Оператор 1'
+    }, ...prev]);
+
     if (selectedBuilding?.id === buildingId) {
       setSelectedBuilding({ ...selectedBuilding, alarmConfirmed: true });
     }
@@ -295,6 +380,13 @@ export default function Index() {
                 <Badge variant="destructive" className="ml-1">{mockAlerts.length}</Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="actions" className="gap-2">
+              <Icon name="FileText" size={16} />
+              Журнал действий
+              {operatorActions.length > 0 && (
+                <Badge variant="secondary" className="ml-1">{operatorActions.length}</Badge>
+              )}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="registry" className="space-y-4">
@@ -310,10 +402,6 @@ export default function Index() {
             </div>
 
             <div className="flex items-center gap-4 mb-6">
-              <div className="flex items-center gap-2">
-                <Icon name="Filter" size={20} className="text-muted-foreground" />
-                <span className="text-sm font-medium text-muted-foreground">Фильтр:</span>
-              </div>
               <div className="flex gap-2">
                 <Button 
                   variant={statusFilter === 'all' ? 'default' : 'outline'} 
@@ -491,10 +579,40 @@ export default function Index() {
               ))}
             </div>
           </TabsContent>
+
+          <TabsContent value="actions" className="space-y-4">
+            {operatorActions.length === 0 ? (
+              <Card className="p-8 text-center">
+                <Icon name="FileText" size={48} className="mx-auto mb-4 text-muted-foreground" />
+                <p className="text-lg font-medium text-muted-foreground mb-2">Нет записей</p>
+                <p className="text-sm text-muted-foreground">Действия оператора будут отображаться здесь</p>
+              </Card>
+            ) : (
+              <div className="grid gap-3">
+                {operatorActions.map((action) => (
+                  <Card key={action.id} className="p-4 border-l-4 border-l-blue-500">
+                    <div className="flex items-start justify-between">
+                      <div className="flex gap-3">
+                        <Icon name="UserCheck" size={20} className="text-blue-600 mt-1" />
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-semibold">{action.action}</h3>
+                            <Badge variant="outline">{action.operator}</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-1">{action.building}</p>
+                          <p className="text-xs text-muted-foreground">{action.timestamp}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
 
         <Dialog open={!!selectedBuilding} onOpenChange={() => setSelectedBuilding(null)}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             {selectedBuilding && (
               <>
                 <DialogHeader>
@@ -524,165 +642,83 @@ export default function Index() {
                           </p>
                         </div>
                       </div>
-                      <div className="flex gap-2">
-                        {!selectedBuilding.alarmConfirmed && (
-                          <Button 
-                            variant="destructive" 
-                            size="sm"
-                            onClick={() => confirmAlarm(selectedBuilding.id)}
-                            className="animate-pulse"
-                          >
-                            <Icon name="Bell" size={16} className="mr-2" />
-                            Подтвердить тревогу
-                          </Button>
-                        )}
-                        <Button variant="destructive" size="sm">
-                          <Icon name="Phone" size={16} className="mr-2" />
-                          Связь с МЧС
+                      {!selectedBuilding.alarmConfirmed && (
+                        <Button 
+                          variant="destructive" 
+                          size="sm"
+                          onClick={() => confirmAlarm(selectedBuilding.id)}
+                          className="animate-pulse"
+                        >
+                          <Icon name="Bell" size={16} className="mr-2" />
+                          Подтвердить тревогу
                         </Button>
-                        <Button variant="outline" size="sm">
-                          <Icon name="Volume2" size={16} className="mr-2" />
-                          Отключить сирену
-                        </Button>
-                      </div>
+                      )}
                     </div>
                   </div>
                 )}
 
-                <Tabs defaultValue="info" className="mt-4">
-                  <TabsList>
-                    <TabsTrigger value="info">Общая информация</TabsTrigger>
-                    <TabsTrigger value="systems">Системы</TabsTrigger>
-                    <TabsTrigger value="sensors">Датчики</TabsTrigger>
-                    <TabsTrigger value="history">История</TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="info" className="space-y-4 mt-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <Card className="p-4">
-                        <div className="flex items-center gap-3 mb-2">
-                          <Icon name="MapPin" size={20} className="text-primary" />
-                          <h4 className="font-semibold">Адрес</h4>
-                        </div>
-                        <p className="text-sm">{selectedBuilding.address}</p>
-                      </Card>
-
-                      <Card className={`p-4 ${selectedBuilding.status === 'critical' ? 'bg-red-50 dark:bg-red-950/20' : selectedBuilding.status === 'no-signal' ? 'bg-orange-50 dark:bg-orange-950/20' : selectedBuilding.status === 'maintenance' ? 'bg-yellow-50 dark:bg-yellow-950/20' : 'bg-green-50 dark:bg-green-950/20'}`}>
-                        <div className="flex items-center gap-3 mb-2">
-                          <Icon name="Shield" size={20} className="text-primary" />
-                          <h4 className="font-semibold">Статус защиты</h4>
-                        </div>
-                        <p className={`text-lg font-bold ${selectedBuilding.status === 'critical' ? 'text-red-600' : selectedBuilding.status === 'no-signal' ? 'text-orange-600' : selectedBuilding.status === 'maintenance' ? 'text-yellow-600' : 'text-green-600'}`}>
-                          {getStatusText(selectedBuilding.status)}
-                        </p>
-                      </Card>
-
-                      <Card className="p-4">
-                        <div className="flex items-center gap-3 mb-2">
-                          <Icon name="Radio" size={20} className="text-primary" />
-                          <h4 className="font-semibold">Датчики</h4>
-                        </div>
-                        <p className="text-2xl font-bold">{selectedBuilding.activeSensors}/{selectedBuilding.sensors}</p>
-                        <p className="text-xs text-muted-foreground mt-1">Активных датчиков</p>
-                      </Card>
-
-                      <Card className="p-4">
-                        <div className="flex items-center gap-3 mb-2">
-                          <Icon name="Clock" size={20} className="text-primary" />
-                          <h4 className="font-semibold">Последняя проверка</h4>
-                        </div>
-                        <p className="text-lg">{selectedBuilding.lastCheck}</p>
-                      </Card>
+                <div className="space-y-4 mt-4">
+                  <Card className="p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Icon name="MapPin" size={20} className="text-primary" />
+                      <h4 className="font-semibold">Адрес</h4>
                     </div>
-                  </TabsContent>
+                    <p className="text-sm">{selectedBuilding.address}</p>
+                  </Card>
 
-                  <TabsContent value="systems" className="space-y-4 mt-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <Card className={`p-4 ${selectedBuilding.systems.sprinkler === 'error' ? 'bg-red-50 dark:bg-red-950/20 border-red-500' : 'bg-green-50 dark:bg-green-950/20'}`}>
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <Icon name="Droplets" size={20} />
-                            <h4 className="font-semibold">Спринклерная система</h4>
-                          </div>
-                          <Badge variant={selectedBuilding.systems.sprinkler === 'active' ? 'secondary' : 'destructive'}>
-                            {selectedBuilding.systems.sprinkler === 'active' ? 'Активна' : 'Ошибка'}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">12 зон покрытия</p>
-                      </Card>
-
-                      <Card className={`p-4 ${selectedBuilding.systems.alarm === 'error' ? 'bg-red-50 dark:bg-red-950/20 border-red-500' : 'bg-green-50 dark:bg-green-950/20'}`}>
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <Icon name="Bell" size={20} />
-                            <h4 className="font-semibold">Пожарная сигнализация</h4>
-                          </div>
-                          <Badge variant={selectedBuilding.systems.alarm === 'active' ? 'secondary' : 'destructive'}>
-                            {selectedBuilding.systems.alarm === 'active' ? 'Активна' : 'Ошибка'}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">{selectedBuilding.sensors} датчиков</p>
-                      </Card>
-
-                      <Card className={`p-4 ${selectedBuilding.systems.smoke === 'error' ? 'bg-red-50 dark:bg-red-950/20 border-red-500' : 'bg-green-50 dark:bg-green-950/20'}`}>
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <Icon name="Cloud" size={20} />
-                            <h4 className="font-semibold">Дымоудаление</h4>
-                          </div>
-                          <Badge variant={selectedBuilding.systems.smoke === 'active' ? 'secondary' : 'destructive'}>
-                            {selectedBuilding.systems.smoke === 'active' ? 'Активна' : 'Ошибка'}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">8 вентиляционных каналов</p>
-                      </Card>
-
-                      <Card className="p-4 bg-blue-50 dark:bg-blue-950/20">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <Icon name="Thermometer" size={20} />
-                            <h4 className="font-semibold">Температура</h4>
-                          </div>
-                          <Badge variant="secondary">Мониторинг</Badge>
-                        </div>
-                        <p className="text-2xl font-bold">{selectedBuilding.systems.temperature}°C</p>
-                      </Card>
+                  <Card className={`p-4 ${selectedBuilding.status === 'critical' ? 'bg-red-50 dark:bg-red-950/20' : selectedBuilding.status === 'no-signal' ? 'bg-orange-50 dark:bg-orange-950/20' : selectedBuilding.status === 'maintenance' ? 'bg-yellow-50 dark:bg-yellow-950/20' : 'bg-green-50 dark:bg-green-950/20'}`}>
+                    <div className="flex items-center gap-3 mb-3">
+                      <Icon name="Shield" size={20} className="text-primary" />
+                      <h4 className="font-semibold">Статус</h4>
                     </div>
-                  </TabsContent>
+                    <p className={`text-lg font-bold ${selectedBuilding.status === 'critical' ? 'text-red-600' : selectedBuilding.status === 'no-signal' ? 'text-orange-600' : selectedBuilding.status === 'maintenance' ? 'text-yellow-600' : 'text-green-600'}`}>
+                      {getStatusText(selectedBuilding.status)}
+                    </p>
+                  </Card>
 
-                  <TabsContent value="sensors" className="space-y-4 mt-4">
-                    <p className="text-sm text-muted-foreground">Подробная информация о датчиках и их расположении</p>
-                    <div className="h-96 bg-secondary/20 rounded-lg flex items-center justify-center">
-                      <div className="text-center">
-                        <Icon name="Radio" size={48} className="mx-auto mb-2 text-muted-foreground" />
-                        <p className="text-muted-foreground">План размещения датчиков</p>
-                      </div>
+                  <Card className="p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Icon name="Flame" size={20} className="text-primary" />
+                      <h4 className="font-semibold">Противопожарная система</h4>
                     </div>
-                  </TabsContent>
+                    <p className="text-sm">{selectedBuilding.fireSystem}</p>
+                  </Card>
 
-                  <TabsContent value="history" className="space-y-4 mt-4">
+                  <Card className="p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Icon name="Wrench" size={20} className="text-primary" />
+                      <h4 className="font-semibold">Последнее ТО</h4>
+                    </div>
+                    <p className="text-sm">{selectedBuilding.lastMaintenance}</p>
+                  </Card>
+
+                  <Card className="p-4">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Icon name="History" size={20} className="text-primary" />
+                      <h4 className="font-semibold">История объекта</h4>
+                    </div>
                     <div className="space-y-3">
-                      {mockAlerts.filter(a => a.building === selectedBuilding.name).map((alert) => (
-                        <Card key={alert.id} className="p-4">
-                          <div className="flex items-start gap-3">
+                      {selectedBuilding.history.map((item) => (
+                        <div key={item.id} className="flex gap-3 pb-3 border-b last:border-b-0 last:pb-0">
+                          <div className="flex-shrink-0">
                             <Icon 
-                              name={alert.type === 'critical' ? 'AlertCircle' : 'Info'} 
-                              size={20} 
-                              className={alert.type === 'critical' ? 'text-red-500' : 'text-yellow-500'} 
+                              name={item.event === 'Тревога' ? 'AlertCircle' : 'CheckCircle'} 
+                              size={16} 
+                              className={item.event === 'Тревога' ? 'text-red-600' : 'text-green-600'} 
                             />
-                            <div className="flex-1">
-                              <p className="font-medium">{alert.message}</p>
-                              <p className="text-sm text-muted-foreground">{alert.time}</p>
-                            </div>
                           </div>
-                        </Card>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-medium text-sm">{item.event}</span>
+                              <span className="text-xs text-muted-foreground">{item.date}</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground">{item.details}</p>
+                          </div>
+                        </div>
                       ))}
-                      {mockAlerts.filter(a => a.building === selectedBuilding.name).length === 0 && (
-                        <p className="text-center text-muted-foreground py-8">События отсутствуют</p>
-                      )}
                     </div>
-                  </TabsContent>
-                </Tabs>
+                  </Card>
+
               </>
             )}
           </DialogContent>
