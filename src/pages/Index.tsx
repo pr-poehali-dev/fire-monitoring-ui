@@ -718,7 +718,7 @@ export default function Index() {
                       ))}
                     </div>
                   </Card>
-
+                </div>
               </>
             )}
           </DialogContent>
