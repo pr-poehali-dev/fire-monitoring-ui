@@ -215,7 +215,15 @@ export default function Index() {
   const [statusFilter, setStatusFilter] = useState<BuildingStatus | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [buildings, setBuildings] = useState<Building[]>(mockBuildings);
-  const [operatorActions, setOperatorActions] = useState<OperatorAction[]>([]);
+  const [operatorActions, setOperatorActions] = useState<OperatorAction[]>([
+    { id: '1', timestamp: '30.10.2024, 14:32', action: 'Подтверждение тревоги', building: 'ТЦ Горизонт', operator: 'Оператор 1' },
+    { id: '2', timestamp: '30.10.2024, 14:34', action: 'Подтверждение тревоги', building: 'Офис Вектор', operator: 'Оператор 1' },
+    { id: '3', timestamp: '30.10.2024, 14:15', action: 'Проверка связи', building: 'Склад Техно', operator: 'Оператор 2' },
+    { id: '4', timestamp: '30.10.2024, 13:45', action: 'Плановая проверка', building: 'БЦ Альфа', operator: 'Оператор 1' },
+    { id: '5', timestamp: '30.10.2024, 12:20', action: 'Обновление данных ТО', building: 'ТРК Космопорт', operator: 'Оператор 2' },
+  ]);
+  const [editingMaintenance, setEditingMaintenance] = useState(false);
+  const [maintenanceDate, setMaintenanceDate] = useState('');
 
   const criticalCount = buildings.filter(b => b.status === 'critical').length;
   const noSignalCount = buildings.filter(b => b.status === 'no-signal').length;
@@ -568,12 +576,6 @@ export default function Index() {
                         <p className="text-xs text-muted-foreground">{alert.time}</p>
                       </div>
                     </div>
-                    {alert.type === 'critical' && (
-                      <Button variant="destructive" size="sm">
-                        <Icon name="Phone" size={16} className="mr-2" />
-                        Связь с МЧС
-                      </Button>
-                    )}
                   </div>
                 </Card>
               ))}
@@ -685,11 +687,71 @@ export default function Index() {
                   </Card>
 
                   <Card className="p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      <Icon name="Wrench" size={20} className="text-primary" />
-                      <h4 className="font-semibold">Последнее ТО</h4>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <Icon name="Wrench" size={20} className="text-primary" />
+                        <h4 className="font-semibold">Последнее ТО</h4>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setEditingMaintenance(true);
+                          setMaintenanceDate(selectedBuilding.lastMaintenance);
+                        }}
+                      >
+                        <Icon name="Pencil" size={14} className="mr-1" />
+                        Изменить
+                      </Button>
                     </div>
-                    <p className="text-sm">{selectedBuilding.lastMaintenance}</p>
+                    {editingMaintenance ? (
+                      <div className="flex gap-2">
+                        <input
+                          type="date"
+                          value={maintenanceDate}
+                          onChange={(e) => setMaintenanceDate(e.target.value)}
+                          className="flex-1 px-3 py-2 border border-border rounded-md bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                        <Button 
+                          size="sm"
+                          onClick={() => {
+                            setBuildings(prev => prev.map(b => 
+                              b.id === selectedBuilding.id ? { ...b, lastMaintenance: maintenanceDate } : b
+                            ));
+                            setSelectedBuilding({ ...selectedBuilding, lastMaintenance: maintenanceDate });
+                            setEditingMaintenance(false);
+                            
+                            const now = new Date();
+                            const timeString = now.toLocaleString('ru-RU', { 
+                              day: '2-digit', 
+                              month: '2-digit', 
+                              year: 'numeric', 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            });
+                            
+                            setOperatorActions(prev => [{
+                              id: Date.now().toString(),
+                              timestamp: timeString,
+                              action: 'Обновление данных ТО',
+                              building: selectedBuilding.name,
+                              operator: 'Оператор 1'
+                            }, ...prev]);
+                          }}
+                        >
+                          Сохранить
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => setEditingMaintenance(false)}
+                        >
+                          Отмена
+                        </Button>
+                      </div>
+                    ) : (
+                      <p className="text-sm">{selectedBuilding.lastMaintenance}</p>
+                    )}
                   </Card>
 
                   <Card className="p-4">
