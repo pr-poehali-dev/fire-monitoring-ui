@@ -359,34 +359,41 @@ export default function Index() {
                 sortedBuildings.map((building) => (
                 <Card
                   key={building.id}
-                  className={`p-6 hover:bg-secondary/50 transition-all cursor-pointer border-2 ${
-                    building.status === 'critical' ? 'bg-red-50 dark:bg-red-950/20 border-red-500' : 
-                    'border-border'
+                  className={`p-4 hover:bg-secondary/50 transition-all border-l-4 ${
+                    building.status === 'critical' ? 'bg-red-50 dark:bg-red-950/20 border-l-red-500' : 
+                    building.status === 'no-signal' ? 'border-l-orange-500' :
+                    building.status === 'maintenance' ? 'border-l-yellow-500' :
+                    'border-l-green-500'
                   }`}
-                  onClick={() => setSelectedBuilding(building)}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4 flex-1">
-                      <div className={`w-4 h-4 rounded-full ${getStatusColor(building.status)} ${building.status === 'critical' ? 'animate-pulse' : ''}`} />
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-1">
-                          <h3 className="text-lg font-semibold">{building.name}</h3>
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className={`w-3 h-3 rounded-full flex-shrink-0 ${getStatusColor(building.status)} ${building.status === 'critical' ? 'animate-pulse' : ''}`} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="text-base font-semibold truncate">{building.name}</h3>
                           <Badge 
                             variant={building.status === 'critical' ? 'destructive' : building.status === 'no-signal' ? 'default' : building.status === 'maintenance' ? 'secondary' : 'secondary'}
-                            className={building.status === 'critical' ? 'animate-pulse' : ''}
+                            className={`text-xs ${building.status === 'critical' ? 'animate-pulse' : ''}`}
                           >
                             {getStatusText(building.status)}
                           </Badge>
-                          {building.status === 'maintenance' && building.maintenanceDue && (
-                            <span className="text-sm text-yellow-600 dark:text-yellow-400">через {building.maintenanceDue}</span>
-                          )}
                         </div>
-                        <p className="text-sm text-muted-foreground flex items-center gap-2">
-                          <Icon name="MapPin" size={14} />
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
+                          <Icon name="MapPin" size={12} />
                           {building.address}
                         </p>
                       </div>
                     </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setSelectedBuilding(building)}
+                      className="flex-shrink-0"
+                    >
+                      <Icon name="ChevronRight" size={16} />
+                      Подробнее
+                    </Button>
                   </div>
                 </Card>
               ))
