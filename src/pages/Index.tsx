@@ -148,6 +148,7 @@ const mockAlerts = [
 export default function Index() {
   const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(null);
   const [activeTab, setActiveTab] = useState('registry');
+  const [statusFilter, setStatusFilter] = useState<BuildingStatus | 'all'>('all');
 
   const criticalCount = mockBuildings.filter(b => b.status === 'critical').length;
   const noSignalCount = mockBuildings.filter(b => b.status === 'no-signal').length;
@@ -186,7 +187,11 @@ export default function Index() {
     }
   };
 
-  const sortedBuildings = [...mockBuildings].sort((a, b) => {
+  const filteredBuildings = statusFilter === 'all' 
+    ? mockBuildings 
+    : mockBuildings.filter(b => b.status === statusFilter);
+
+  const sortedBuildings = [...filteredBuildings].sort((a, b) => {
     return getPriorityOrder(a.status) - getPriorityOrder(b.status);
   });
 
@@ -275,6 +280,58 @@ export default function Index() {
           </TabsList>
 
           <TabsContent value="registry" className="space-y-4">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="flex items-center gap-2">
+                <Icon name="Filter" size={20} className="text-muted-foreground" />
+                <span className="text-sm font-medium text-muted-foreground">Фильтр:</span>
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  variant={statusFilter === 'all' ? 'default' : 'outline'} 
+                  size="sm"
+                  onClick={() => setStatusFilter('all')}
+                >
+                  Все объекты ({mockBuildings.length})
+                </Button>
+                <Button 
+                  variant={statusFilter === 'critical' ? 'destructive' : 'outline'} 
+                  size="sm"
+                  onClick={() => setStatusFilter('critical')}
+                  className={statusFilter === 'critical' ? '' : 'border-red-500 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20'}
+                >
+                  <Icon name="Siren" size={16} className="mr-2" />
+                  Тревоги ({criticalCount})
+                </Button>
+                <Button 
+                  variant={statusFilter === 'no-signal' ? 'default' : 'outline'} 
+                  size="sm"
+                  onClick={() => setStatusFilter('no-signal')}
+                  className={statusFilter === 'no-signal' ? 'bg-orange-600 hover:bg-orange-700' : 'border-orange-500 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-950/20'}
+                >
+                  <Icon name="SignalLow" size={16} className="mr-2" />
+                  Нет сигнала ({noSignalCount})
+                </Button>
+                <Button 
+                  variant={statusFilter === 'maintenance' ? 'default' : 'outline'} 
+                  size="sm"
+                  onClick={() => setStatusFilter('maintenance')}
+                  className={statusFilter === 'maintenance' ? 'bg-yellow-600 hover:bg-yellow-700' : 'border-yellow-500 text-yellow-600 hover:bg-yellow-50 dark:hover:bg-yellow-950/20'}
+                >
+                  <Icon name="Wrench" size={16} className="mr-2" />
+                  Требуется ТО ({maintenanceCount})
+                </Button>
+                <Button 
+                  variant={statusFilter === 'normal' ? 'default' : 'outline'} 
+                  size="sm"
+                  onClick={() => setStatusFilter('normal')}
+                  className={statusFilter === 'normal' ? 'bg-green-600 hover:bg-green-700' : 'border-green-500 text-green-600 hover:bg-green-50 dark:hover:bg-green-950/20'}
+                >
+                  <Icon name="CheckCircle" size={16} className="mr-2" />
+                  Норма ({mockBuildings.filter(b => b.status === 'normal').length})
+                </Button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <Card className="p-6 border-2 border-red-500 bg-red-50 dark:bg-red-950/20">
                 <div className="flex items-center justify-between">
