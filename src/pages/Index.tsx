@@ -348,38 +348,6 @@ export default function Index() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <Card className="p-6 border-2 border-red-500 bg-red-50 dark:bg-red-950/20">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-red-600 dark:text-red-400 font-medium mb-1">ТРЕВОГА</p>
-                    <p className="text-3xl font-bold text-red-700 dark:text-red-300">{criticalCount} объекта</p>
-                  </div>
-                  <Icon name="Siren" size={40} className="text-red-600 dark:text-red-400" />
-                </div>
-              </Card>
-
-              <Card className="p-6 border-2 border-orange-500 bg-orange-50 dark:bg-orange-950/20">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-orange-600 dark:text-orange-400 font-medium mb-1">НЕТ СИГНАЛА</p>
-                    <p className="text-3xl font-bold text-orange-700 dark:text-orange-300">{noSignalCount} объект</p>
-                  </div>
-                  <Icon name="SignalLow" size={40} className="text-orange-600 dark:text-orange-400" />
-                </div>
-              </Card>
-
-              <Card className="p-6 border-2 border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-yellow-600 dark:text-yellow-400 font-medium mb-1">ТРЕБУЕТСЯ ТО</p>
-                    <p className="text-3xl font-bold text-yellow-700 dark:text-yellow-300">{maintenanceCount} объекта</p>
-                  </div>
-                  <Icon name="Wrench" size={40} className="text-yellow-600 dark:text-yellow-400" />
-                </div>
-              </Card>
-            </div>
-
             <div className="grid gap-4">
               {sortedBuildings.length === 0 ? (
                 <Card className="p-8 text-center">
